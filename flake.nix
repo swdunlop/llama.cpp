@@ -55,7 +55,10 @@
               "-DLLAMA_BLAS=ON"
               "-DLLAMA_BLAS_VENDOR=OpenBLAS"
           ]);
-          postInstall = postInstall;
+          postInstall = if isAarch64 && isDarwin then ''
+            ${postInstall}
+            cp $src/ggml-metal.metal $out/bin
+          '' else postInstall;
           meta.mainProgram = "llama";
         };
         packages.opencl = pkgs.stdenv.mkDerivation {
