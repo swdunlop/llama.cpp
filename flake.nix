@@ -39,14 +39,7 @@
 
           mkdir $out/include
 
-          cp $src/llama.h $out/include
-          cp $src/llama-util.h $out/include
-          cp $src/ggml.h $out/include
-          cp $src/ggml-alloc.h $out/include
-          cp $cmakeDir/build-info.h $out/include
-
-          cp $src/k_quants.h $out/include
-          cp $src/ggml-mpi.h $out/include
+          cp $src/*.h $out/include
         '';
         cmakeFlags = [ "-DLLAMA_BUILD_SERVER=ON" "-DLLAMA_MPI=ON" "-DBUILD_SHARED_LIBS=ON" "-DCMAKE_SKIP_BUILD_RPATH=ON" ];
       in {
@@ -66,7 +59,6 @@
           ]);
           postInstall = if isAarch64 && isDarwin then ''
             ${postInstall}
-            cp $src/ggml-metal.h $out/include
             cp $src/ggml-metal.metal $out/bin
           '' else postInstall;
           meta.mainProgram = "llama";
