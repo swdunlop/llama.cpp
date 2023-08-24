@@ -76,7 +76,7 @@ struct ggml_allocr {
 };
 
 #ifdef GGML_ALLOCATOR_DEBUG
-static void add_allocated_tensor(struct ggml_allocator * alloc, struct ggml_tensor * tensor) {
+static void add_allocated_tensor(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
     for (int i = 0; i < 1024; i++) {
         if (alloc->allocated_tensors[i] == NULL) {
             alloc->allocated_tensors[i] = tensor;
@@ -85,7 +85,7 @@ static void add_allocated_tensor(struct ggml_allocator * alloc, struct ggml_tens
     }
     GGML_ASSERT(!"out of allocated_tensors");
 }
-static void remove_allocated_tensor(struct ggml_allocator * alloc, struct ggml_tensor * tensor) {
+static void remove_allocated_tensor(struct ggml_allocr * alloc, struct ggml_tensor * tensor) {
     for (int i = 0; i < 1024; i++) {
         if (alloc->allocated_tensors[i] == tensor ||
             (alloc->allocated_tensors[i] != NULL && alloc->allocated_tensors[i]->data == tensor->data)) {
@@ -238,7 +238,7 @@ static void ggml_allocator_free_tensor(struct ggml_allocr * alloc, struct ggml_t
     alloc->n_free_blocks++;
 }
 
-void ggml_allocr_set_parse_seq(struct ggml_allocr * alloc, int * list, int n) {
+void ggml_allocr_set_parse_seq(struct ggml_allocr * alloc, const int * list, int n) {
     int pos = 0;
     for (int i = 0; i < n; i++) {
         if (list[i] != -1) {
@@ -547,7 +547,7 @@ static size_t ggml_allocator_alloc_graph_tensors_n(
                         struct ggml_tensor * view_src = get_view_source(parent);
                         struct hash_node * view_src_hn = hash_get(ht, view_src);
                         view_src_hn->n_views -= 1;
-                        AT_PRINTF("view_src %s: %d children, %d views\n", view_src->name, view_src->n_children, view_src->n_views);
+                        AT_PRINTF("view_src %s\n", view_src->name);
                         if (view_src_hn->n_views == 0 && view_src_hn->n_children == 0 && view_src->data != node->data) {
                             ggml_allocator_free_tensor(alloc, view_src);
                         }
